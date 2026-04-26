@@ -1,0 +1,8 @@
+.git
+.github
+.idea
+*.md
+target/
+*.iml
+docker-compose.yml
+k8s/

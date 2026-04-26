@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: task-postgres
+    environment:
+      POSTGRES_DB: taskdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  task-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: task-manager:local
+    container_name: task-manager
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: dGFza21hbmFnZXItand0LXNlY3JldC1rZXktMjAyNi1kby1ub3QtdXNlLWluLXByb2R1Y3Rpb24=
+      JWT_EXPIRATION: 86400000
+      SPRING_JPA_SHOW_SQL: "false"
+
+volumes:
+  postgres_data:
