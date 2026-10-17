@@ -2,6 +2,7 @@ package com.taskmanager.service;
 
 import com.taskmanager.dto.AuthRequest;
 import com.taskmanager.dto.AuthResponse;
+import com.taskmanager.dto.MeResponse;
 import com.taskmanager.model.User;
 import com.taskmanager.repository.UserRepository;
 import com.taskmanager.security.JwtUtil;
@@ -28,6 +29,7 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
                 .role("ROLE_USER")
                 .build();
 
@@ -35,6 +37,11 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
         return new AuthResponse(token, user.getUsername(), user.getRole());
+    }
+
+    public MeResponse getMe(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        return new MeResponse(user.getUsername(), user.getEmail());
     }
 
     public AuthResponse login(AuthRequest request) {

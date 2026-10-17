@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "tasks")
 @Data
@@ -38,6 +39,10 @@ public class Task {
 
     @Column(name = "assigned_to", length = 100)
     private String assignedTo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @Column(name = "due_date")
     private LocalDateTime dueDate;

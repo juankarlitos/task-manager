@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,74 +22,71 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    // POST /api/tasks — Crear tarea
     @PostMapping
-    public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(request));
+    public ResponseEntity<TaskResponse> create(
+            @Valid @RequestBody TaskRequest request,
+            Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(request, auth.getName()));
     }
 
-    // GET /api/tasks — Listar todas las tareas
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> findAll() {
-        return ResponseEntity.ok(taskService.findAll());
+    public ResponseEntity<List<TaskResponse>> findAll(Authentication auth) {
+        return ResponseEntity.ok(taskService.findAll(auth.getName()));
     }
 
-    // GET /api/tasks/{id} — Obtener tarea por ID
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.findById(id));
+    public ResponseEntity<TaskResponse> findById(@PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(taskService.findById(id, auth.getName()));
     }
 
-    // GET /api/tasks/status/{status} — Filtrar por estado
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TaskResponse>> findByStatus(@PathVariable TaskStatus status) {
-        return ResponseEntity.ok(taskService.findByStatus(status));
+    public ResponseEntity<List<TaskResponse>> findByStatus(
+            @PathVariable TaskStatus status, Authentication auth) {
+        return ResponseEntity.ok(taskService.findByStatus(status, auth.getName()));
     }
 
-    // GET /api/tasks/priority/{priority} — Filtrar por prioridad
     @GetMapping("/priority/{priority}")
-    public ResponseEntity<List<TaskResponse>> findByPriority(@PathVariable TaskPriority priority) {
-        return ResponseEntity.ok(taskService.findByPriority(priority));
+    public ResponseEntity<List<TaskResponse>> findByPriority(
+            @PathVariable TaskPriority priority, Authentication auth) {
+        return ResponseEntity.ok(taskService.findByPriority(priority, auth.getName()));
     }
 
-    // GET /api/tasks/assigned/{name} — Filtrar por responsable
     @GetMapping("/assigned/{name}")
-    public ResponseEntity<List<TaskResponse>> findByAssignedTo(@PathVariable String name) {
-        return ResponseEntity.ok(taskService.findByAssignedTo(name));
+    public ResponseEntity<List<TaskResponse>> findByAssignedTo(
+            @PathVariable String name, Authentication auth) {
+        return ResponseEntity.ok(taskService.findByAssignedTo(name, auth.getName()));
     }
 
-    // GET /api/tasks/search?q=keyword — Búsqueda libre
     @GetMapping("/search")
-    public ResponseEntity<List<TaskResponse>> search(@RequestParam("q") String keyword) {
-        return ResponseEntity.ok(taskService.search(keyword));
+    public ResponseEntity<List<TaskResponse>> search(
+            @RequestParam("q") String keyword, Authentication auth) {
+        return ResponseEntity.ok(taskService.search(keyword, auth.getName()));
     }
 
-    // GET /api/tasks/stats — Estadísticas por estado
     @GetMapping("/stats")
-    public ResponseEntity<Map<String, Long>> stats() {
-        return ResponseEntity.ok(taskService.getStatsByStatus());
+    public ResponseEntity<Map<String, Long>> stats(Authentication auth) {
+        return ResponseEntity.ok(taskService.getStatsByStatus(auth.getName()));
     }
 
-    // PUT /api/tasks/{id} — Actualizar tarea completa
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody TaskRequest request) {
-        return ResponseEntity.ok(taskService.update(id, request));
+            @Valid @RequestBody TaskRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(taskService.update(id, request, auth.getName()));
     }
 
-    // PATCH /api/tasks/{id}/status — Cambiar solo el estado
     @PatchMapping("/{id}/status")
     public ResponseEntity<TaskResponse> updateStatus(
             @PathVariable Long id,
-            @RequestParam TaskStatus status) {
-        return ResponseEntity.ok(taskService.updateStatus(id, status));
+            @RequestParam TaskStatus status,
+            Authentication auth) {
+        return ResponseEntity.ok(taskService.updateStatus(id, status, auth.getName()));
     }
 
-    // DELETE /api/tasks/{id} — Eliminar tarea
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        taskService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication auth) {
+        taskService.delete(id, auth.getName());
         return ResponseEntity.noContent().build();
     }
 }
