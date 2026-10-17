@@ -26,7 +26,7 @@ services:
     image: task-manager:local
     container_name: task-manager
     ports:
-      - "8080:8080"
+      - "8087:8080"
     depends_on:
       postgres:
         condition: service_healthy
