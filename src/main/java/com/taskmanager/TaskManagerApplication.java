@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +19,7 @@ public class TaskManagerApplication {
         SpringApplication.run(TaskManagerApplication.class, args);
     }
 
-    // Datos de ejemplo al iniciar
+    @Profile("!prod")
     @Bean
     CommandLineRunner seedData(TaskRepository repo) {
         return args -> {
