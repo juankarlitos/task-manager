@@ -2,7 +2,6 @@ package com.taskmanager.dto;
 
 import com.taskmanager.model.TaskPriority;
 import com.taskmanager.model.TaskStatus;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,6 +28,5 @@ public class TaskRequest {
     @Size(max = 100, message = "El nombre del asignado no puede superar 100 caracteres")
     private String assignedTo;
 
-    @Future(message = "La fecha de vencimiento debe ser en el futuro")
     private LocalDateTime dueDate;
 }

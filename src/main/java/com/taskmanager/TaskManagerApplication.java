@@ -22,6 +22,10 @@ public class TaskManagerApplication {
     @Bean
     CommandLineRunner seedData(TaskRepository repo) {
         return args -> {
+            if (repo.count() > 0) {
+                return;
+            }
+
             repo.save(Task.builder()
                     .title("Diseñar base de datos")
                     .description("Crear el modelo entidad-relación para el módulo de usuarios")
@@ -61,7 +65,7 @@ public class TaskManagerApplication {
             repo.save(Task.builder()
                     .title("Revisión de seguridad")
                     .description("Auditoría de vulnerabilidades OWASP Top 10")
-                    .status(TaskStatus.CANCELLED)
+                    .status(TaskStatus.PENDING)
                     .priority(TaskPriority.HIGH)
                     .assignedTo("Ana García")
                     .build());
