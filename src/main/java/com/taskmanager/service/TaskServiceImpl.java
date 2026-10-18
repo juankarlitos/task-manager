@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,6 +104,10 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
         task.setAssignedTo(request.getAssignedTo());
+
+        if (!Objects.equals(task.getDueDate(), request.getDueDate())) {
+            task.setReminderSent(Boolean.FALSE);
+        }
         task.setDueDate(request.getDueDate());
 
         return toResponse(taskRepository.save(task));

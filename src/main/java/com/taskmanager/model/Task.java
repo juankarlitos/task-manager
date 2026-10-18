@@ -44,6 +44,10 @@ public class Task {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @Column(name = "reminder_sent")
+    @Builder.Default
+    private Boolean reminderSent = Boolean.FALSE;
+
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 

@@ -6,8 +6,10 @@ import com.taskmanager.model.TaskStatus;
 import com.taskmanager.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
            "LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<Task> searchByKeywordAndOwner(String keyword, User owner);
+
+    // ── Recordatorios ────────────────────────────────────────────────────────────
+
+    @Query("SELECT t FROM Task t JOIN FETCH t.owner o " +
+           "WHERE t.status NOT IN :excluded " +
+           "AND t.dueDate IS NOT NULL " +
+           "AND t.dueDate <= :deadline " +
+           "AND (t.reminderSent = false OR t.reminderSent IS NULL) " +
+           "AND o.email IS NOT NULL AND o.email <> ''")
+    List<Task> findTasksDueForReminder(
+            @Param("deadline") LocalDateTime deadline,
+            @Param("excluded") List<TaskStatus> excluded);
 
     // ── Métodos originales (sin filtro, conservados para compatibilidad) ───────
 

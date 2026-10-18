@@ -39,6 +39,7 @@ services:
       SPRING_JPA_SHOW_SQL: "false"
       TZ: America/Santiago
       JAVA_TOOL_OPTIONS: "-Duser.timezone=America/Santiago"
+      CRON_SECRET: local-cron-secret
 
 volumes:
   postgres_data:
