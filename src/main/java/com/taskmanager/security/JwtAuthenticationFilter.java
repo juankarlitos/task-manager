@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtUtil.isTokenValid(token, userDetails)) {
+            if (jwtUtil.isTokenValid(token, userDetails) && !isIssuedBeforePasswordChange(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -54,5 +56,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isIssuedBeforePasswordChange(String token, UserDetails userDetails) {
+        if (!(userDetails instanceof UserPrincipal principal)) return false;
+        LocalDateTime changedAt = principal.getPasswordChangedAt();
+        if (changedAt == null) return false;
+
+        java.time.Instant tokenIssued = jwtUtil.extractIssuedAt(token).toInstant();
+        java.time.Instant passwordChanged = changedAt.atZone(ZoneId.systemDefault()).toInstant();
+        return tokenIssued.isBefore(passwordChanged);
     }
 }

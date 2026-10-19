@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -29,4 +31,7 @@ public class User {
 
     @Column(nullable = false, length = 20)
     private String role;
+
+    @Column(name = "password_changed_at")
+    private LocalDateTime passwordChangedAt;
 }

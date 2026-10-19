@@ -150,6 +150,45 @@ class TaskControllerTest {
     }
 
     @Test
+    void cuandoCambiaContrasena_tokenAntiguoEsRechazado() throws Exception {
+        // Crear usuario exclusivo para este test
+        if (!userRepository.existsByUsername("pwdresetuser")) {
+            userRepository.save(User.builder()
+                    .username("pwdresetuser")
+                    .password(passwordEncoder.encode("reset123"))
+                    .role("ROLE_USER")
+                    .build());
+        }
+
+        AuthRequest loginReq = new AuthRequest();
+        loginReq.setUsername("pwdresetuser");
+        loginReq.setPassword("reset123");
+
+        String resp = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginReq)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String oldToken = objectMapper.readTree(resp).get("token").asText();
+
+        // Verificar que el token funciona antes del cambio
+        mockMvc.perform(get("/api/tasks")
+                        .header("Authorization", "Bearer " + oldToken))
+                .andExpect(status().isOk());
+
+        // Simular cambio de contraseña: marcar passwordChangedAt en el futuro respecto al iat
+        User user = userRepository.findByUsername("pwdresetuser").orElseThrow();
+        user.setPasswordChangedAt(LocalDateTime.now().plusSeconds(5));
+        userRepository.save(user);
+
+        // El token antiguo debe ser rechazado
+        mockMvc.perform(get("/api/tasks")
+                        .header("Authorization", "Bearer " + oldToken))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void shouldNotSeeAnotherUsersTasks() throws Exception {
         // Crear usuario ajeno
         if (!userRepository.existsByUsername("otheruser")) {

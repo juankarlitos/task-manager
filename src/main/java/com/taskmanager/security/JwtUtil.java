@@ -34,6 +34,10 @@ public class JwtUtil {
         return parseClaims(token).getSubject();
     }
 
+    public Date extractIssuedAt(String token) {
+        return parseClaims(token).getIssuedAt();
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
